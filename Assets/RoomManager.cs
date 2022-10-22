@@ -8,13 +8,19 @@ using UnityEngine.SceneManagement;
 
 public class RoomManager : MonoBehaviourPunCallbacks
 {
+
     [SerializeField]
     private GameObject playerPrefab;
     // Start is called before the first frame update
     void Start()
     {
+        DefaultPool pool = PhotonNetwork.PrefabPool as DefaultPool;
+        pool.ResourceCache.Add(GameObject.Find("Cube2").name, GameObject.Find("Cube2"));
+
         // Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
-        playerPrefab = PhotonNetwork.Instantiate(playerPrefab.name, Vector3.zero, Quaternion.identity);
+        playerPrefab = PhotonNetwork.Instantiate("Cube2", Vector3.zero, Quaternion.identity);
+
+
         playerPrefab.GetComponent<Renderer>().material.color = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
 
         Debug.Log("<Color=lime>" + PhotonNetwork.LocalPlayer.UserId + "</color>");
