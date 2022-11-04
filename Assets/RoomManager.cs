@@ -6,22 +6,30 @@ using Photon.Realtime;
 using Photon.Pun;
 using UnityEngine.SceneManagement;
 
+using UnityEngine.Networking;
+
+[System.Serializable]
+public class Players
+{
+    public string name;
+    public string url;
+}
+
 public class RoomManager : MonoBehaviourPunCallbacks
 {
-
     [SerializeField]
     private GameObject playerPrefab;
     // Start is called before the first frame update
     void Start()
     {
-        DefaultPool pool = PhotonNetwork.PrefabPool as DefaultPool;
-        pool.ResourceCache.Add(GameObject.Find("Cube2").name, GameObject.Find("Cube2"));
+        //yield return (DownloadAsset());
 
-        // Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
-        playerPrefab = PhotonNetwork.Instantiate("Cube2", Vector3.zero, Quaternion.identity);
+        playerPrefab = PhotonNetwork.Instantiate("player_h", Vector3.zero, Quaternion.identity);
+        playerPrefab.name = "player_h";
 
-
-        playerPrefab.GetComponent<Renderer>().material.color = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
+        //foreach (var i in pool.ResourceCache)
+        //    Destroy(i.Value.gameObject);
+        //pool.ResourceCache.Clear();
 
         Debug.Log("<Color=lime>" + PhotonNetwork.LocalPlayer.UserId + "</color>");
         Debug.Log("<Color=lime>" + PhotonNetwork.CloudRegion + "</color>");

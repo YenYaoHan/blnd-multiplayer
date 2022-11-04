@@ -27,17 +27,17 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-      //  if (!photonView.IsMine)
-      //      return;
+        if (!photonView.IsMine)
+            return;
 
         inputX = Input.GetAxis("Horizontal");
         inputZ = Input.GetAxis("Vertical");
 
-        if (inputX!=0 || inputZ>0)
+        if (inputX != 0 || inputZ > 0)
             animator.SetBool("isRun", true);
         else
             animator.SetBool("isRun", false);
-        
+
         if (controller.isGrounded)
         {
             v_velocity.y = 0f;
@@ -50,8 +50,19 @@ public class PlayerController : MonoBehaviour
         v_movement = controller.transform.forward * inputZ;
 
         controller.transform.Rotate(Vector3.up * inputX * (100f * Time.deltaTime));
-        if(inputZ>0)
-           controller.Move(v_movement * moveSpeed * Time.deltaTime);
+        if (inputZ > 0)
+            controller.Move(v_movement * moveSpeed * Time.deltaTime);
         controller.Move(v_velocity);
+
+
+        if (Input.GetKeyDown(KeyCode.Space))
+            photonView.RPC("ChangeFloorColor", RpcTarget.All);
+    }
+
+
+    [PunRPC]
+    private void ChangeFloorColor()
+    {
+        GameObject.Find("Plane").GetComponent<Renderer>().material.color = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
     }
 }

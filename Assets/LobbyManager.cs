@@ -6,6 +6,7 @@ using Photon.Realtime;
 using Photon.Pun;
 using ExitGames.Client.Photon;
 
+using UnityEngine.Networking;
 public class LobbyManager : MonoBehaviourPunCallbacks
 {
     public string roomName = "Room1";
@@ -54,27 +55,23 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     public override void OnConnectedToMaster()
     {
-        Debug.Log("OnConnectedToMaster() was called by PUN. This client is now connected to Master Server in region [" + PhotonNetwork.CloudRegion + 
+        Debug.Log("OnConnectedToMaster() was called by PUN. This client is now connected to Master Server in region [" + PhotonNetwork.CloudRegion +
             "] and can join a room. Calling: PhotonNetwork.JoinRandomRoom();");
 
+        StartCoroutine(DownloadAsset());
 
-        RoomOptions roomOptions = new RoomOptions();
-        roomOptions.MaxPlayers = 20;
-        roomOptions.IsOpen = true;
-        roomOptions.IsVisible = true;
-
-        PhotonNetwork.JoinOrCreateRoom(roomName, roomOptions,TypedLobby.Default);
+     
     }
 
     public override void OnJoinedLobby()
     {
-        Debug.Log("OnJoinedLobby(). This client is now connected to Relay in region [" + PhotonNetwork.CloudRegion + 
+        Debug.Log("OnJoinedLobby(). This client is now connected to Relay in region [" + PhotonNetwork.CloudRegion +
             "]. This script now calls: PhotonNetwork.JoinRandomRoom();");
     }
 
     public override void OnJoinRandomFailed(short returnCode, string message)
     {
-        Debug.Log("OnJoinRandomFailed() was called by PUN. No random room available in region [" + PhotonNetwork.CloudRegion + 
+        Debug.Log("OnJoinRandomFailed() was called by PUN. No random room available in region [" + PhotonNetwork.CloudRegion +
             "], so we create one. Calling: PhotonNetwork.CreateRoom(null, new RoomOptions() {maxPlayers = 4}, null);");
     }
 
@@ -96,5 +93,65 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     {
         base.OnPlayerEnteredRoom(newPlayer);
         Debug.Log(newPlayer.UserId);
+    }
+
+    IEnumerator DownloadAsset()
+    {
+        DefaultPool pool = PhotonNetwork.PrefabPool as DefaultPool;
+        List<Players> players = new List<Players>();
+
+        Players p1 = new Players();
+        p1.name = "player_eric";
+        p1.url = "https://firebasestorage.googleapis.com/v0/b/blnd-multiplayer.appspot.com/o/player_eric.abs?alt=media&token=ade36445-04cd-4c62-8ce8-c84a678c4c8b";
+        players.Add(p1);
+
+        Players p2 = new Players();
+        p2.name = "player_h";
+        p2.url = "https://firebasestorage.googleapis.com/v0/b/blnd-multiplayer.appspot.com/o/player_h.abs?alt=media&token=7274fc5b-130a-458e-8a56-b9246d58b67b";
+        players.Add(p2);
+
+        Players p3 = new Players();
+        p3.name = "playerhank";
+        p3.url = "https://firebasestorage.googleapis.com/v0/b/blnd-multiplayer.appspot.com/o/playerhank.abs?alt=media&token=9d41d893-b2e1-4820-98bc-4f62a38e5cc3";
+        players.Add(p3);
+
+
+        foreach (var i in players)
+        {
+            using (UnityWebRequest uwr = UnityWebRequestAssetBundle.GetAssetBundle(i.url))
+            {
+                yield return uwr.SendWebRequest();
+                if (uwr.isNetworkError || uwr.isHttpError)
+                {
+                    Debug.Log(uwr.error);
+                }
+                else
+                {
+                    // Get downloaded asset bundle
+                    AssetBundle bundle = DownloadHandlerAssetBundle.GetContent(uwr);
+                    var prefab = bundle.LoadAsset(i.name);
+                    GameObject obj = Instantiate(prefab, new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
+                    obj.name = i.name;
+
+                    obj.transform.position = new Vector3(1000, 1000, 1000);
+                    pool.ResourceCache.Add(obj.name, GameObject.Find(obj.name));
+                    DontDestroyOnLoad(obj);
+
+                    foreach (var j in obj.gameObject.GetComponent<PhotonAnimatorView>().GetSynchronizedParameters())
+                    {
+                        j.SynchronizeType = PhotonAnimatorView.SynchronizeType.Discrete;
+                    }
+                        
+                    Debug.Log("Download Complete: "+ obj.name);
+                }
+            }
+        }
+
+        RoomOptions roomOptions = new RoomOptions();
+        roomOptions.MaxPlayers = 20;
+        roomOptions.IsOpen = true;
+        roomOptions.IsVisible = true;
+
+        PhotonNetwork.JoinOrCreateRoom(roomName, roomOptions, TypedLobby.Default);
     }
 }

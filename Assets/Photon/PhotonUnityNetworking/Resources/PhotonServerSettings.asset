@@ -19,7 +19,7 @@ MonoBehaviour:
     AppIdVoice: 132430a6-3e1e-4dbe-ab76-f7013c4a4045
     AppVersion: 1
     UseNameServer: 1
-    FixedRegion: jp
+    FixedRegion: asia
     Server: 
     Port: 0
     ProxyServer: 
@@ -28,7 +28,7 @@ MonoBehaviour:
     AuthMode: 0
     EnableLobbyStatistics: 0
     NetworkLogging: 1
-  DevRegion: jp
+  DevRegion: asia
   PunLogging: 0
   EnableSupportLogger: 0
   RunInBackground: 1
@@ -42,6 +42,7 @@ MonoBehaviour:
   - CantHearYou
   - ChangeColour
   - HeresWhy
+  - ChangeFloorColor
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0
